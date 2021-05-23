@@ -1,0 +1,72 @@
+﻿
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <script src="/chart/Chart.bundle.js"></script>
+  
+  <title>My Chart.js Chart</title>
+</head>
+<body>
+    
+    <canvas id="myChart" width="800" height="400"></canvas>	
+    <script>
+	const xs = [];//global方便重構
+	const ys = [];
+	
+	charIt();
+	async function charIt(){
+		var data = await getData();
+		var ctx = document.getElementById('myChart').getContext('2d');
+
+		var myChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: data.xs,
+				datasets: [{
+					label: 'Global Average Temperature',
+					data: data.ys,
+					fill: false,
+					backgroundColor:'rgba(255, 99, 132, 0.2)',
+					borderColor:'rgba(255, 99, 132, 1)',
+					borderWidth: 1
+				}
+			]
+			},
+			 options: {
+				plugins: {
+					title: {
+						display: true,
+						text: 'Custom Chart Title',
+						padding: {
+							top: 10,
+							bottom: 30
+						}
+					}
+				}
+			}
+		});
+	
+	}
+	
+
+	async function getData() {
+		const response = await fetch('/chart/ZonAnn.Ts+dSST.csv');
+		const data = await response.text();
+		
+		const rows = data.split('\n').slice(1);
+		rows.forEach(row => {
+			const columns = row.split(',');
+			const year = columns[0];			
+			const temp = columns[1];
+			xs.push(year);
+			ys.push(parseFloat(temp) + 14);
+			console.log(year, temp);
+		});//資料清理的動作
+		return { xs, ys };
+	}
+	</script>
+</body>
+</html>
